@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#130d1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>For My Favorite Person In The World 💕 | 2,000 Memories Project</title>
+  
+  <!-- Modern Romantic Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- External Libraries (CDN with fallback) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-twilight">
+  <!-- Interactive Ambient Canvas (Floating Hearts & Sparkles) -->
+  <canvas id="ambientCanvas"></canvas>
+
+  <div class="app-wrapper">
+    <!-- Top Navigation & Love Banner -->
+    <header class="romantic-header">
+      <div class="header-inner">
+        <div class="brand-zone">
+          <div class="brand-heart-icon" id="heartSparkleBtn" title="Click for extra love!">💖</div>
+          <div>
+            <div class="brand-eyebrow">
+              <span class="pulse-dot"></span>
+              <span id="personalizedSubtext">A Special Space For My Favorite Girl</span>
+            </div>
+            <h1 class="brand-title">
+              The <span class="gradient-text">2,000 Moments</span> Gallery
+            </h1>
+          </div>
+        </div>
+
+        <!-- Cute Live Actions -->
+        <div class="header-actions">
+          <button class="cute-btn btn-ghost" id="ambientMusicToggle" title="Toggle cute ambient lofi music">
+            <span class="btn-icon">🎵</span>
+            <span class="btn-label" id="musicLabel">Music: Off</span>
+          </button>
+          
+          <button class="cute-btn btn-accent" id="openStoryBtn" title="Watch full screen memory story of loved photos">
+            <span class="btn-icon">▶️</span>
+            <span class="btn-label">Memory Story 💖</span>
+          </button>
+
+          <button class="cute-btn btn-ghost" id="editGreetingBtn" title="Customize greeting & names">
+            <span class="btn-icon">✏️</span>
+            <span class="btn-label">Personalize</span>
+          </button>
+
+          <button class="cute-btn btn-primary" id="openExportBtn">
+            <span class="btn-icon">💌</span>
+            <span class="btn-label">Her Picks (<span id="headerFavoriteCount">0</span>)</span>
+          </button>
+
+          <div class="sheet-sync-status-badge" id="sheetSyncStatusBadge" title="Live real-time sync with Cloudflare KV Database">
+            <span class="sheet-sync-icon" id="sheetSyncIcon">⚡</span>
+            <span class="sheet-sync-text" id="sheetSyncText">Cloudflare Synced</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Love Letter Banner -->
+      <section class="love-letter-banner">
+        <div class="love-letter-card">
+          <div class="quote-mark">“</div>
+          <div class="love-letter-content">
+            <p class="love-letter-text" id="loveLetterDisplay">
+              tu humesha jhagadti na ki mere choice ke photos tko psnd nai aate par sach ye hai ki literally har photo me tu sundar lgti har angle me meko tu apsara jaisi lgti...you look soo breathtaking in evry single one of these 1732 memories..but since humari maharanni ko meri choice nai psnd aati, this place is yours to go through them and choose the ones you actually love. Take your time, my love! 💕
+            </p>
+            <div class="love-letter-footer">
+              <span class="signature-tag" id="senderSignature">— With all my love, Chotu✨</span>
+              <div class="daily-whisper-pill" id="randomWhisper">
+                🌸 <span id="whisperText">Reminder: You look 10/10 in all of these!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress & Quick Stats Hub -->
+      <section class="stats-progress-hub">
+        <div class="progress-bar-container">
+          <div class="progress-label-row">
+            <span class="progress-title">
+              <span>Memory Curation Progress</span>
+              <span class="progress-badge" id="progressPercentage">0%</span>
+            </span>
+            <span class="progress-numbers" id="progressFraction">0 / 0 Reviewed</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="stats-pills-row">
+          <div class="stat-pill active" data-filter="all" id="pillAll">
+            <span class="pill-icon">📸</span>
+            <span class="pill-name">All Photos</span>
+            <span class="pill-count" id="countAll">0</span>
+          </div>
+          <div class="stat-pill" data-filter="loved" id="pillLoved">
+            <span class="pill-icon">💖</span>
+            <span class="pill-name">Loved</span>
+            <span class="pill-count" id="countLoved">0</span>
+          </div>
+          <div class="stat-pill" data-filter="super" id="pillSuper">
+            <span class="pill-icon">⭐</span>
+            <span class="pill-name">Super Loved</span>
+            <span class="pill-count" id="countSuper">0</span>
+          </div>
+          <div class="stat-pill" data-filter="unreviewed" id="pillUnreviewed">
+            <span class="pill-icon">⏳</span>
+            <span class="pill-name">Needs Review</span>
+            <span class="pill-count" id="countUnreviewed">0</span>
+          </div>
+          <div class="stat-pill" data-filter="passed" id="pillPassed">
+            <span class="pill-icon">❌</span>
+            <span class="pill-name">Skipped</span>
+            <span class="pill-count" id="countPassed">0</span>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <!-- Source Bar / Folder Drop Indicator -->
+    <div class="source-toolbar">
+      <div class="source-info">
+        <span class="source-status-icon" id="sourceIcon">📂</span>
+        <span id="sourceStatusText">Loaded 0 photos</span>
+      </div>
+      <div class="source-actions">
+        <!-- Hidden file/folder inputs -->
+        <input type="file" id="folderPickerInput" webkitdirectory directory multiple accept="image/*" class="visually-hidden">
+        <input type="file" id="filePickerInput" multiple accept="image/*" class="visually-hidden">
+
+        <button class="cute-btn btn-sm btn-accent" id="syncDriveBtn" title="Sync live photos directly from Google Drive">
+          <span>☁️</span> Sync Google Drive
+        </button>
+        <button class="cute-btn btn-sm btn-outline" id="loadFolderBtn">
+          <span>📁</span> Choose Local Folder
+        </button>
+        <button class="cute-btn btn-sm btn-outline" id="loadFilesBtn">
+          <span>🖼️</span> Pick Files
+        </button>
+        <button class="cute-btn btn-sm btn-ghost" id="loadDemoBtn" title="Load sample cute photos">
+          <span>✨</span> Demo
+        </button>
+      </div>
+    </div>
+
+    <!-- Mode Switcher & Controls Toolbar -->
+    <div class="controls-toolbar">
+      <div class="view-mode-toggle">
+        <button class="mode-tab active" id="modeTinderBtn">
+          <span>💖</span> Quick Pick (Swipe Mode)
+        </button>
+        <button class="mode-tab" id="modeGridBtn">
+          <span>🖼️</span> Gallery Grid
+        </button>
+      </div>
+
+      <div class="toolbar-utilities">
+        <!-- Search -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="photoSearchInput" placeholder="Search filenames or notes...">
+          <button id="clearSearchBtn" class="clear-btn" style="display: none;">×</button>
+        </div>
+
+        <!-- Sort dropdown -->
+        <select id="sortSelect" class="cute-select">
+          <option value="original">Original Order</option>
+          <option value="name">Name (A-Z)</option>
+          <option value="random">Shuffle / Random 🎲</option>
+          <option value="recently-rated">Recently Picked 💕</option>
+        </select>
+
+        <!-- Quick filter: unreviewed toggle -->
+        <button class="cute-btn btn-sm btn-outline unreviewed-toggle" id="quickUnreviewedToggle" title="Filter to photos needing review">
+          <span>⏳</span> <span id="unreviewedToggleText">Only Unreviewed</span>
+        </button>
+
+        <!-- Grid column size selector (only visible in Grid mode) -->
+        <div class="grid-size-controls" id="gridSizeControls" style="display: none;">
+          <button class="size-btn" data-cols="small" title="Compact Grid">⊞</button>
+          <button class="size-btn active" data-cols="medium" title="Medium Grid">⊟</button>
+          <button class="size-btn" data-cols="large" title="Large Grid">🗖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="main-content">
+      
+      <!-- ================= MODE 1: SWIPE / TINDER CURATOR ================= -->
+      <section class="curate-card-section" id="curateSection">
+        <div class="curate-container">
+          
+          <div class="swipe-hints">
+            <span class="desktop-hint">Shortcuts: <span class="kbd-badge">← Pass</span> <span class="kbd-badge">→ Love 💕</span> <span class="kbd-badge">↑ Super Love ⭐</span> <span class="kbd-badge">↓ Undo ↺</span></span>
+            <span class="mobile-hint">👆 Swipe card: 👈 Skip &nbsp;|&nbsp; 👉 Love 💕 &nbsp;|&nbsp; ☝️ Super ⭐</span>
+          </div>
+
+          <!-- The Active Card Stack -->
+          <div class="card-stack-wrapper" id="cardStack">
+            <div class="curate-card" id="currentCurateCard">
+              <div class="card-media-wrapper">
+                <img id="cardImage" src="" alt="Photo of her" class="card-img" />
+                <video id="cardVideo" controls class="card-img" style="display: none; background: #000;"></video>
+                <div class="card-loading-spinner" id="cardSpinner">
+                  <div class="heart-spinner">💖</div>
+                </div>
+                
+                <!-- Decision Watermarks (animated on action) -->
+                <div class="decision-stamp stamp-pass" id="stampPass">PASS ❌</div>
+                <div class="decision-stamp stamp-love" id="stampLove">SHE LOVES 💕</div>
+                <div class="decision-stamp stamp-super" id="stampSuper">SUPER PICK ⭐</div>
+
+                <div class="card-gradient-overlay"></div>
+              </div>
+
+              <!-- Card Content & Details -->
+              <div class="card-info-pane">
+                <div class="card-info-top">
+                  <div class="card-name-group">
+                    <div class="card-number-badge" id="cardNumberBadge">✨ Memory #0001</div>
+                    <h3 class="card-photo-name" id="cardPhotoName">DSC_0001.JPG</h3>
+                    <div class="card-photo-meta" id="cardPhotoMeta">Photo #1 of 2,000</div>
+                    <div class="card-hash-meta" id="cardHashMeta" style="font-size: 0.72rem; color: var(--text-faint); font-family: monospace;">Hash: ...</div>
+                  </div>
+                  
+                  <!-- Reaction Tag Pill -->
+                  <div class="current-status-tag" id="cardStatusBadge">
+                    <span id="cardStatusText">Unreviewed</span>
+                  </div>
+                </div>
+
+                <!-- Cute Reaction Stickers -->
+                <div class="sticker-reactions-row">
+                  <span class="sticker-prompt">Cute badge:</span>
+                  <button class="reaction-sticker-btn" data-reaction="Stunning 😍">😍 Stunning</button>
+                  <button class="reaction-sticker-btn" data-reaction="Cutest Face 🥺">🥺 Cutest Face</button>
+                  <button class="reaction-sticker-btn" data-reaction="Goddess 👑">👑 Goddess</button>
+                  <button class="reaction-sticker-btn" data-reaction="Sweetest Smile 🌸">🌸 Sweetest Smile</button>
+                  <button class="reaction-sticker-btn" data-reaction="Favorite Memory ✨">✨ Favorite Memory</button>
+                </div>
+
+                <!-- Optional Personal Note -->
+                <div class="card-note-row">
+                  <input type="text" id="cardNoteInput" class="card-note-input" placeholder="Leave a sweet note on this photo (e.g. 'I love my smile here', 'For Instagram!')...">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tinder Action Control Buttons -->
+          <div class="swipe-action-controls">
+            <button class="action-btn btn-undo" id="btnUndo" title="Undo Last Photo (↓ Down Arrow)">
+              <span class="action-icon">↺</span>
+              <span class="action-tooltip">Undo</span>
+            </button>
+
+            <button class="action-btn btn-pass" id="btnPass" title="Skip / Pass (← Left Arrow)">
+              <span class="action-icon">❌</span>
+              <span class="action-tooltip">Skip</span>
+            </button>
+
+            <button class="action-btn btn-super" id="btnSuper" title="Super Loved! (↑ Up Arrow)">
+              <span class="action-icon">⭐</span>
+              <span class="action-tooltip">Super Love</span>
+            </button>
+
+            <button class="action-btn btn-love" id="btnLove" title="Love It! (→ Right Arrow)">
+              <span class="action-icon">💖</span>
+              <span class="action-tooltip">I Love It</span>
+            </button>
+
+            <button class="action-btn btn-expand" id="btnExpand" title="View Fullscreen">
+              <span class="action-icon">🔍</span>
+              <span class="action-tooltip">Expand</span>
+            </button>
+          </div>
+
+          <!-- Empty or Finished State (hidden by default) -->
+          <div class="empty-curate-state" id="emptyCurateState" style="display: none;">
+            <div class="empty-card-inner">
+              <div class="celebration-emoji">🎉💐✨</div>
+              <h2>You Made It Through All The Photos!</h2>
+              <p>You've curated your favorites from all the memories. You look sensational in all of them!</p>
+              <div class="empty-actions">
+                <button class="cute-btn btn-primary" id="emptyExportBtn">💌 View & Export My Picks</button>
+                <button class="cute-btn btn-outline" id="emptyResetBtn">🔄 Review Again</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= MODE 2: GALLERY GRID VIEW ================= -->
+      <section class="gallery-grid-section" id="gridSection" style="display: none;">
+        <!-- Active Filter Indicator -->
+        <div class="grid-filter-bar">
+          <div class="filter-indicator">
+            <span>Showing:</span>
+            <strong id="activeFilterLabel">All Photos</strong>
+            <span class="filter-count-badge" id="gridFilteredCount">0 items</span>
+          </div>
+
+          <div class="quick-batch-actions">
+            <button class="cute-btn btn-xs btn-outline" id="selectAllFilteredBtn">❤️ Select All Filtered</button>
+            <button class="cute-btn btn-xs btn-outline" id="clearFilteredBtn">Reset Ratings</button>
+          </div>
+        </div>
+
+        <!-- The Photo Grid -->
+        <div class="photos-grid medium-grid" id="photosGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Infinite Scroll Sentinel -->
+        <div class="infinite-scroll-sentinel" id="scrollSentinel">
+          <div class="loading-more-pill" id="loadingMorePill" style="display: none;">
+            <span class="mini-spinner"></span> Loading more cute memories...
+          </div>
+        </div>
+
+        <!-- Empty Grid State -->
+        <div class="empty-grid-state" id="emptyGridState" style="display: none;">
+          <div class="empty-icon">🌸</div>
+          <h3>No photos found</h3>
+          <p>Try switching filter tabs or clearing your search query!</p>
+          <button class="cute-btn btn-sm btn-primary" id="resetFiltersBtn">Reset Filters</button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Cute Footer -->
+    <footer class="romantic-footer">
+      <div class="footer-inner">
+        <p>Made with endless love 💕 for the girl with the most unforgettable smile.</p>
+        <div class="footer-links">
+          <span>All selections auto-saved automatically</span>
+          <span>•</span>
+          <a href="#" id="shortcutHelpLink">Keyboard Shortcuts</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================= MODAL: LIGHTBOX FULLSCREEN ================= -->
+  <div class="cute-modal" id="lightboxModal">
+    <div class="modal-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-dialog">
+      <button class="modal-close-btn" id="closeLightboxBtn">&times;</button>
+      
+      <div class="lightbox-body">
+        <div class="lightbox-image-container">
+          <button class="nav-arrow nav-prev" id="lbPrevBtn">&#10094;</button>
+          <img id="lightboxImage" src="" alt="Fullscreen view" class="lightbox-img" />
+          <video id="lightboxVideo" controls class="lightbox-img" style="display: none; background: #000;"></video>
+          <button class="nav-arrow nav-next" id="lbNextBtn">&#10095;</button>
+        </div>
+
+        <div class="lightbox-sidebar">
+          <div class="lb-header">
+            <div class="card-number-badge" id="lbPhotoNumber" style="margin-bottom: 0.35rem;">✨ Memory #0001</div>
+            <h3 id="lbPhotoTitle">Photo Title</h3>
+            <span class="lb-meta" id="lbPhotoMeta">1 of 2,000</span>
+            <div id="lbPhotoHash" style="font-size: 0.72rem; color: var(--text-faint); font-family: monospace; margin-top: 0.2rem;">Hash: ...</div>
+          </div>
+
+          <div class="lb-decision-buttons">
+            <button class="lb-rate-btn" data-status="loved" id="lbBtnLoved">
+              <span>💖</span> I Love This!
+            </button>
+            <button class="lb-rate-btn" data-status="super" id="lbBtnSuper">
+              <span>⭐</span> Super Favorite!
+            </button>
+            <button class="lb-rate-btn" data-status="passed" id="lbBtnPass">
+              <span>❌</span> Skip
+            </button>
+          </div>
+
+          <!-- Quick reactions -->
+          <div class="lb-reaction-section">
+            <label>Reaction Sticker</label>
+            <div class="lb-sticker-grid" id="lbStickers">
+              <button class="lb-sticker" data-sticker="Stunning 😍">😍 Stunning</button>
+              <button class="lb-sticker" data-sticker="Cutest Face 🥺">🥺 Cutest Face</button>
+              <button class="lb-sticker" data-sticker="Goddess 👑">👑 Goddess</button>
+              <button class="lb-sticker" data-sticker="Sweetest Smile 🌸">🌸 Smile</button>
+              <button class="lb-sticker" data-sticker="Aesthetic ✨">✨ Aesthetic</button>
+              <button class="lb-sticker" data-sticker="Silly Candid 🤪">🤪 Silly Candid</button>
+            </div>
+          </div>
+
+          <!-- Custom note -->
+          <div class="lb-note-section">
+            <label for="lbNoteInput">Her Note / Memory Thought</label>
+            <textarea id="lbNoteInput" rows="3" placeholder="Add a memory note (e.g. 'Our summer trip', 'Print this for the bedroom frame')..."></textarea>
+          </div>
+
+          <div class="lb-footer-actions">
+            <button class="cute-btn btn-sm btn-outline" id="lbDownloadBtn">
+              <span>📥</span> Download Photo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EXPORT & PICKS HUB ================= -->
+  <div class="cute-modal" id="exportModal">
+    <div class="modal-backdrop" id="exportBackdrop"></div>
+    <div class="modal-dialog export-dialog">
+      <button class="modal-close-btn" id="closeExportBtn">&times;</button>
+      
+      <div class="export-header">
+        <div class="export-header-heart">💌</div>
+        <h2>Her Curated Picks Collection</h2>
+        <p>Here are the photos she selected out of the 2,000 memories!</p>
+      </div>
+
+      <div class="export-summary-box">
+        <div class="export-stat">
+          <span class="export-num" id="exportLovedCount">0</span>
+          <span class="export-label">Loved Photos 💖</span>
+        </div>
+        <div class="export-divider"></div>
+        <div class="export-stat">
+          <span class="export-num" id="exportSuperCount">0</span>
+          <span class="export-label">Super Favorites ⭐</span>
+        </div>
+        <div class="export-divider"></div>
+        <div class="export-stat">
+          <span class="export-num" id="exportTotalCount">0</span>
+          <span class="export-label">Total Chosen</span>
+        </div>
+      </div>
+
+      <!-- Export Actions Grid -->
+      <div class="export-options-grid">
+        <!-- Option 1: Copy filenames list -->
+        <div class="export-card">
+          <div class="card-icon">📋</div>
+          <h4>Copy Filename List</h4>
+          <p>Quick list formatted for Windows Explorer / Finder search or Lightroom.</p>
+          <button class="cute-btn btn-sm btn-primary w-100" id="copyFilenamesBtn">
+            <span>📋</span> Copy Filenames to Clipboard
+          </button>
+        </div>
+
+        <!-- Option 2: Save to disk on server -->
+        <div class="export-card">
+          <div class="card-icon">💾</div>
+          <h4>Save To Project Folder</h4>
+          <p>Saves <code>her-picks.json</code> and text list directly into your project folder.</p>
+          <button class="cute-btn btn-sm btn-primary w-100" id="saveToServerBtn">
+            <span>💾</span> Save To Computer
+          </button>
+        </div>
+
+        <!-- Option 3: Download as ZIP -->
+        <div class="export-card">
+          <div class="card-icon">📦</div>
+          <h4>Download as ZIP</h4>
+          <p>Bundles all her selected favorite pictures into a single downloadable ZIP.</p>
+          <button class="cute-btn btn-sm btn-primary w-100" id="downloadZipBtn">
+            <span id="zipBtnIcon">📦</span> <span id="zipBtnText">Download Favorites ZIP</span>
+          </button>
+        </div>
+
+        <!-- Option 4: Download JSON file -->
+        <div class="export-card">
+          <div class="card-icon">📄</div>
+          <h4>Download Selections JSON</h4>
+          <p>Contains all ratings, notes, and timestamps to keep permanently.</p>
+          <button class="cute-btn btn-sm btn-outline w-100" id="downloadJsonBtn">
+            <span>📥</span> Download JSON Backup
+          </button>
+        </div>
+
+        <!-- Option 5: Save directly to Cloudflare KV -->
+        <div class="export-card" style="grid-column: span 2;">
+          <div class="card-icon">⚡</div>
+          <h4>Sync to Cloudflare Cloud Database</h4>
+          <p>Instantly commits your curated picks, ratings, and notes to Cloudflare KV storage.</p>
+          <button class="cute-btn btn-sm btn-accent w-100" id="saveToSheetBtn">
+            <span>⚡</span> Sync Picks to Cloudflare KV Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview of Selected List -->
+      <div class="export-preview-section">
+        <div class="preview-header">
+          <span>Preview of Selected Photos:</span>
+          <button class="cute-btn btn-xs btn-ghost" id="togglePicksPreviewBtn">Show / Hide List</button>
+        </div>
+        <div class="picks-preview-container" id="picksPreviewContainer" style="display: none;">
+          <textarea id="picksPreviewText" readonly rows="6"></textarea>
+        </div>
+      </div>
+
+      <!-- Sweet Message to Boyfriend -->
+      <div class="export-love-note-box">
+        <label for="gfLoveNoteInput">💌 Leave a message for him with your picks:</label>
+        <textarea id="gfLoveNoteInput" rows="2" placeholder="e.g., 'Here are the ones I really love! Let's print these out and hang them on the fairy light string 💕'"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EDIT GREETING & PERSONALIZATION ================= -->
+  <div class="cute-modal" id="personalizeModal">
+    <div class="modal-backdrop" id="personalizeBackdrop"></div>
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="closePersonalizeBtn">&times;</button>
+      
+      <div class="personalize-header">
+        <span class="cute-icon">✨</span>
+        <h2>Personalize Your Love Gallery</h2>
+        <p>Make this gallery completely special for her!</p>
+      </div>
+
+      <div class="personalize-form">
+        <div class="form-group">
+          <label for="inputHerName">Her Name / Pet Name</label>
+          <input type="text" id="inputHerName" placeholder="e.g. Maya, My Sweetheart, Cutie, Baby...">
+        </div>
+
+        <div class="form-group">
+          <label for="inputLoveLetter">Love Message in the Banner</label>
+          <textarea id="inputLoveLetter" rows="4" placeholder="Write your own custom sweet message..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="inputSignature">Your Signature</label>
+          <input type="text" id="inputSignature" placeholder="e.g. — With all my love, Sohan 💕">
+        </div>
+
+        <div class="form-actions">
+          <button class="cute-btn btn-outline" id="resetGreetingBtn">Reset to Default</button>
+          <button class="cute-btn btn-primary" id="saveGreetingBtn">Save & Apply 💕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: MEMORIES STORY SLIDESHOW (INSTAGRAM STORIES STYLE) ================= -->
+  <div class="cute-modal story-modal" id="storyModal">
+    <div class="story-backdrop" id="storyBackdrop"></div>
+    <div class="story-container">
+      <!-- Top segmented progress bars -->
+      <div class="story-progress-bar-container" id="storyProgressBars"></div>
+      
+      <!-- Story Header -->
+      <div class="story-header">
+        <div class="story-author-info">
+          <span class="story-avatar">👑</span>
+          <div>
+            <div class="story-title" id="storyPhotoTitle">Aaru's Loved Memories</div>
+            <div class="story-subtitle" id="storyPhotoSub">Memory #1</div>
+          </div>
+        </div>
+        <div class="story-header-actions">
+          <button class="story-icon-btn" id="storyPlayPauseBtn" title="Pause / Play">⏸️</button>
+          <button class="story-icon-btn" id="closeStoryBtn" title="Close Story">&times;</button>
+        </div>
+      </div>
+
+      <!-- Story Media Display -->
+      <div class="story-media-wrapper" id="storyMediaWrapper">
+        <img id="storyImage" src="" alt="Favorite Memory" class="story-img" />
+        <video id="storyVideo" playsinline class="story-img" style="display: none;"></video>
+        
+        <!-- Touch tap zones: left = prev, right = next -->
+        <div class="story-tap-zone story-tap-left" id="storyTapLeft" title="Previous Memory"></div>
+        <div class="story-tap-zone story-tap-right" id="storyTapRight" title="Next Memory"></div>
+      </div>
+
+      <!-- Story Bottom Caption / Note -->
+      <div class="story-footer" id="storyFooter">
+        <div class="story-badge-pill" id="storyBadgePill" style="display: none;">😍 Stunning</div>
+        <p class="story-note-text" id="storyNoteText"></p>
+        <div class="story-love-indicator">💖 Chosen with love by Aaru</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CHOTU'S MILESTONE LOVE NOTE ================= -->
+  <div class="cute-modal milestone-modal" id="milestoneModal">
+    <div class="modal-backdrop" id="milestoneBackdrop"></div>
+    <div class="modal-dialog milestone-dialog">
+      <div class="milestone-badge-icon" id="milestoneIcon">💌</div>
+      <h2 class="milestone-title" id="milestoneTitle">Chotu Has A Message For You! 💕</h2>
+      <div class="milestone-count-pill" id="milestoneCountPill">✨ 25 Memories Curated ✨</div>
+      <div class="milestone-quote-box">
+        <p class="milestone-text" id="milestoneMessageText">
+          "Literally har photo me tu apsara lagti hai... You're making this curation so special! Keep going my Maharanni! 💕"
+        </p>
+      </div>
+      <div class="milestone-actions">
+        <button class="cute-btn btn-primary btn-lg" id="milestoneContinueBtn">Continue Curating 💕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="cute-toast-container" id="toastContainer"></div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

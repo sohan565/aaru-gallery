@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Local binaries and zip archives
+cloudflared.exe
+*.zip
+*.bat
+
+# Local caches & personal photos (hosted on Cloudflare R2)
+.thumbnails_cache/
+photos/
+aaru1/
+
+# Local backup jsons
+her-picks-*.json
+her_current_picks.json
